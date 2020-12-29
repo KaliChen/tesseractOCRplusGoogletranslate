@@ -14,6 +14,7 @@ import tkinter.messagebox as tkmsg
 from tkinter.colorchooser import *
 from PIL import Image, ImageTk, ImageDraw, ExifTags, ImageColor,ImageFont
 from tkinter import filedialog
+from ImgViewer.imgview import ImageViewer
 
 fontlinetype_Item = {cv2.LINE_AA:'LINE_AA',cv2.LINE_8:'LINE_8'}
 fontsize = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 20, 22, 24, 28, 32, 36, 40, 44, 48, 52, 54, 60, 72)
@@ -35,15 +36,29 @@ class tesserectOCR():
         self.imageFile = str()
         self.tesserectOCRPanel = tk.LabelFrame(self.parent, text="tesserect OCR",font=('Courier', 10))
         self.tesserectOCRPanel.pack(side=tk.TOP)
+        self.init_imgview_tab()
         self.init_tesserect_tab()
         self.init_setting_tab()
         self.init_Font_tab()
         self.init_GoogleTran_tab()
         self.init_DisplaySceneMarkInfo_tab()
 
+    def init_imgview_tab(self):
+        self.imgview_tab = tk.Frame(self.tesserectOCRPanel)
+        self.imgview_tab.pack(side = tk.LEFT, expand=tk.YES, fill=tk.BOTH)
+        self.imgview = ImageViewer(self.tesserectOCRPanel)
+        ImageConfig_Button = tk.Button(self.tesserectOCRPanel, text = "ImageConfig",font=('Courier', 8), command = self.image_config)
+        ImageConfig_Button.pack(side=tk.LEFT, expand=tk.YES, fill = tk.X)
+
+    def image_config(self, event = None):
+        imageFile = self.imgview.image_paths[self.imgview.image_idx]
+        self.imageFile = str(imageFile)
+        self.DisplaySceneMarkInfo.insert(tk.END,self.imageFile)
+
     def tesseract_OCR(self, event = None):
         #self.imageFile = self.imgswitch()
         detectText = []
+        print(self.imageFile)
         #if self.tesseract_OCR_langType.get() == 'eng':
         self.OCR = pytesseract.image_to_string(Image.open(self.imageFile), lang = self.tesseract_OCR_langType.get() )
         self.DisplaySceneMarkInfo.insert(tk.END,self.OCR)
@@ -154,7 +169,7 @@ class tesserectOCR():
                 self.Table_of_font.insert("", index = 'end', text = ttf,  values = (ttf))
 
         else:
-            fontlist = glob.glob( "NICE_font/*.[tT][tT][fF]" )            
+            fontlist = glob.glob( "font/*.[tT][tT][fF]" )            
             for ttf in fontlist:
                 (head, filename) = os.path.split(ttf)
                 self.Table_of_font.insert("", index = 'end', text = filename,  values = (ttf))
@@ -271,7 +286,8 @@ class tesserectOCR():
 if __name__ == '__main__':
     root = tk.Tk()
     tesserectOCR(root)
-    tesserectOCR.imageFile = filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("jpg files","*.jpg"),("all files","*.*")))
+    #tesserectOCR.imageFile = filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("jpg files","*.jpg"),("jpeg files","*.jpeg"),("all files","*.*")))
+    #print(tesserectOCR.imageFile)
     #root.resizable(width=True, height=True)
     #root.geometry(MAIN_DISPLAY_SIZE)
     root.mainloop()

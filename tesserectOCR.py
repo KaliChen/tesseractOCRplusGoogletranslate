@@ -3,7 +3,19 @@ import cv2
 import glob
 import os
 import numpy as np
-from googletrans import Translator
+
+#(1) change version, module not good to work...
+#from googletrans import Translator
+
+#(2)
+#Try google_trans_new. It solved the problem for me https://github.com/lushan88a/google_trans_new
+
+#    pip install google_trans_new
+#from google_trans_new import google_translator 
+
+#(3)
+from translate import Translator
+
 import pytesseract
 import tkinter as tk
 from tkinter.ttk import *
@@ -115,18 +127,33 @@ class tesserectOCR():
         self.tesseract_OCR_Button.pack(side=tk.LEFT, expand=tk.NO, fill = tk.X)
 
     def googleTrans(self, event = None):
+        #(1)
+        #translator = Translator(service_urls=['translate.google.com',
+        #                                      'translate.google.co.kr',
+        #                                      'translate.google.com.tw',
+        #                                      'translate.google.co.jp'
+        #                                      ]
+        #                        )
 
-        translator = Translator(service_urls=['translate.google.com',
-                                              'translate.google.co.kr',
-                                              'translate.google.com.tw',
-                                              'translate.google.co.jp'
-                                              ]
-                                )
-        #if self.dest_langType.get()=='en':
-        translations = translator.translate([self.OCR,], dest=self.dest_langType.get())
+        #(2)
+        #translator = google_translator()  
+        
+        #(3)
+        translator= Translator(to_lang=self.dest_langType.get())
+
+        #(1)
+        #translations = translator.translate([self.OCR,], dest=self.dest_langType.get(), src = self.src_langType.get())
+        
+        #(2)
+        #translations = translator.translate([self.OCR,], lang_src=self.src_langType.get(), lang_tgt=self.dest_langType.get())
+
+        #(3)
+        translations = translator.translate(self.OCR)
+
         for translation in translations:
             #print(translation.origin, ' -> ', translation.text)
-            self.DisplaySceneMarkInfo.insert(tk.END,translation.text)
+            print(translation)
+            self.DisplaySceneMarkInfo.insert(tk.END,str(translation.text))
 
     def init_GoogleTran_tab(self):
         self.GoogleTran_tab = tk.Frame(self.tesserectOCRPanel)
@@ -136,10 +163,13 @@ class tesserectOCR():
         self.googleTrans_Button = tk.Button(self.GoogleTran_tab, text = "Google Translate",font=('Courier', 10), command = self.googleTrans)
         self.googleTrans_Button.pack(side=tk.LEFT, expand=tk.NO, fill = tk.X)
 
-        self.dest_langType = ttk.Combobox(self.GoogleTran_tab,font=('Courier', 10),width = 25, values = ["en","zh-CN","ja","ko","ar"], state = "readonly") 
+        self.src_langType = ttk.Combobox(self.GoogleTran_tab,font=('Courier', 10),width = 15, values = ["en","zh-CN","ja","ko","ar"], state = "readonly") 
+        self.src_langType.pack(side=tk.LEFT, expand=tk.NO, fill = tk.X)
+        self.src_langType.current(0)
+
+        self.dest_langType = ttk.Combobox(self.GoogleTran_tab,font=('Courier', 10),width = 15, values = ["en","zh-CN","ja","ko","ar"], state = "readonly") 
         self.dest_langType.pack(side=tk.LEFT, expand=tk.NO, fill = tk.X)
         self.dest_langType.current(0)
-
     def Select_font(self, event = None):
         for item in self.Table_of_font.selection():
             self.item_text = self.Table_of_font.item(item, "values")
